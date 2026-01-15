@@ -1,4 +1,7 @@
-# Strava widgets
+# Strava widget for performance metrics 
+
+![Example image](./example.jpeg)
+
 Mobile widgets for fast access to performance stats from strava: 
 1. Training Stress Score - TSS;
 2. Intensity Factor - IF;
