@@ -15,6 +15,10 @@ declare const Script: any
 declare const config: any
 declare const Keychain: any
 
+const CLIENT_ID = Keychain.get("STRAVA_CLIENT_ID")
+const CLIENT_SECRET = Keychain.get("STRAVA_CLIENT_SECRET")
+const REFRESH_TOKEN = Keychain.get("STRAVA_REFRESH_TOKEN")
+
 async function createWidget(activities: SummaryActivity[], ftp: number, weight: number, zones: AthleteZones): Promise<any> {
   const list = new ListWidget()
 
@@ -143,10 +147,6 @@ async function createWidget(activities: SummaryActivity[], ftp: number, weight: 
 
 async function main() {
   try {
-    const CLIENT_ID = await Keychain.get("STRAVA_CLIENT_ID")
-    const CLIENT_SECRET = await Keychain.get("STRAVA_CLIENT_SECRET")
-    const REFRESH_TOKEN = await Keychain.get("STRAVA_REFRESH_TOKEN")
-
     const strava = new Strava(CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, true)
     const activities = await strava.loadActivities()
     const zones = await strava.getAthleteZones()
