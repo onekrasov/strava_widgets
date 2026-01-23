@@ -16,24 +16,29 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2 # Upgraded to v2 for better stability
         with:
           bun-version: latest
+
+      - name: Get Bun cache directory
+        id: bun-cache
+        run: echo "STORE_PATH=$(bun pm cache)" >> $GITHUB_OUTPUT
 
       - name: Cache bun dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.bun/install/cache
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock') }}
+          path: ${{ steps.bun-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lock', '**/bun.lockb') }}
           restore-keys: |
             ${{ runner.os }}-bun-
 
       - name: Install dependencies
         run: |
-          for i in 1 2 3; do
-            bun install && break || sleep 5
-          done
-        timeout-minutes: 5
+          # Increased timeout and added --frozen-lockfile for CI consistency
+          bun install --frozen-lockfile
+        env:
+          # This helps Bun handle network requests more strictly in CI
+          BUN_RUNTIME_TRANSPORTS: "1" 
 
       - name: Run tests
         run: bun test
@@ -45,18 +50,12 @@ jobs:
       - name: Build scriptable.js
         run: bun run build
 
-      - name: Upload scriptable.js artifact
+      - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: scriptable-widget
-          path: scriptable.js
-          retention-days: 30
-
-      - name: Upload build info
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-info
+          name: build-output
           path: |
+            scriptable.js
             package.json
             README.md
           retention-days: 30
