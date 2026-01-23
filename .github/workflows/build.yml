@@ -18,9 +18,9 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest # Using latest to ensure the socket bug fix is present
+          bun-version: latest 
 
-      - name: Cache bun dependencies
+      - name: Cache Bun Internals
         uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
@@ -28,17 +28,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-
 
-      # NEW: Cache for your unit test data
-      - name: Cache Unit Test Folder
+      # Handles your JSON activity streams
+      - name: Cache Unit Test Data
         uses: actions/cache@v4
         with:
-          # Change "cache" to the actual name/path of the folder your tests produce
-          path: ./cache 
-          # This key changes only when your code changes, but allows updates
-          key: ${{ runner.os }}-test-cache-${{ github.run_id }}
-          # This ensures the NEW run can see the OLD run's data
+          path: ./cache
+          # Unique key ensures we save a NEW snapshot every time the job succeeds
+          key: ${{ runner.os }}-activity-streams-${{ github.run_id }}
+          # Restore-keys grabs the most recent snapshot from the previous run
           restore-keys: |
-            ${{ runner.os }}-test-cache-
+            ${{ runner.os }}-activity-streams-
 
       - name: Install dependencies
         run: bun install --frozen-lockfile --backend=copy
@@ -55,7 +54,7 @@ jobs:
       - name: Build scriptable.js
         run: bun run build
 
-      - name: Upload Artifacts
+      - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: scriptable-bundle
