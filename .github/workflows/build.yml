@@ -18,14 +18,7 @@ jobs:
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          # Forcing a modern version to fix the "FailedToOpenSocket" bug found in 1.3.x
-          bun-version: 1.3.6 
-
-      - name: Network Diagnostic
-        run: |
-          echo "Checking connectivity to Registry..."
-          curl -I https://registry.npmjs.org/
-          bun --version
+          bun-version: latest # Using latest to ensure the socket bug fix is present
 
       - name: Cache bun dependencies
         uses: actions/cache@v4
@@ -35,10 +28,20 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-
 
+      # NEW: Cache for your unit test data
+      - name: Cache Unit Test Folder
+        uses: actions/cache@v4
+        with:
+          # Change "cache" to the actual name/path of the folder your tests produce
+          path: ./cache 
+          # This key changes only when your code changes, but allows updates
+          key: ${{ runner.os }}-test-cache-${{ github.run_id }}
+          # This ensures the NEW run can see the OLD run's data
+          restore-keys: |
+            ${{ runner.os }}-test-cache-
+
       - name: Install dependencies
-        # Using --backend=copy prevents some socket issues on virtualized filesystems
-        run: |
-          bun install --frozen-lockfile --backend=copy
+        run: bun install --frozen-lockfile --backend=copy
         env:
           BUN_RUNTIME_TRANSPORTS: "1"
 
@@ -55,7 +58,6 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-artifacts
-          path: |
-            scriptable.js
+          name: scriptable-bundle
+          path: scriptable.js
           retention-days: 30
