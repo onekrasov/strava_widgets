@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "none",
+    "target": "es2017",
+    "outFile": "./scriptable.js",
+    "lib": ["es2017"],
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "baseUrl": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "src/tests/**/*"]
+}
