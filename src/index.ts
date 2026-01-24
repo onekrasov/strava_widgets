@@ -1,8 +1,8 @@
+import { GeminiClient } from "lib/gemini"
 import { calculateStats } from "./lib/math"
 import { Strava } from "./lib/strava"
 import type {
-  AthleteZones,
-  SummaryActivity
+  PerformanceStats,
 } from "./types"
 
 // Scriptable globals - no need to import, they're available globally in Scriptable
@@ -14,16 +14,18 @@ declare const Size: any
 declare const Script: any
 declare const config: any
 declare const Keychain: any
+declare const Alert: any
 
 const CLIENT_ID = Keychain.get("STRAVA_CLIENT_ID")
 const CLIENT_SECRET = Keychain.get("STRAVA_CLIENT_SECRET")
 const REFRESH_TOKEN = Keychain.get("STRAVA_REFRESH_TOKEN")
+const GEMINI_API_KEY = Keychain.get("GEMINI_API_KEY")
+const GOAL = Keychain.get("TRAINING_GOAL")
+const WORK_STRESS = parseInt(Keychain.get("WORK_STRESS_LEVEL") || "50", 10)
 
-async function createWidget(activities: SummaryActivity[], ftp: number, weight: number, zones: AthleteZones): Promise<any> {
+async function createWidget(stats: PerformanceStats): Promise<any> {
   const list = new ListWidget()
 
-  // Calculate stats
-  const stats = calculateStats(activities, ftp, weight, zones)
   // Set Colors
   let bg1 = new Color('#514e4eff')
   let bg2 = new Color('#282727ff')
@@ -157,12 +159,18 @@ async function main() {
       throw new Error("FTP or weight not set in athlete profile.")
     }
 
-    const widget = await createWidget(activities, ftp, weight, zones)
+    const stats = calculateStats(activities, ftp, weight, zones)
+    
+    const widget = await createWidget(stats)
 
     if (config.runsInWidget) {
       Script.setWidget(widget)
     } else {
-      await widget.presentMedium()
+      // --- TAP ACTION (App View) ---
+      const gemini = new GeminiClient(GEMINI_API_KEY, stats, activities, true)
+      const reportBody = await gemini.generateReport(GOAL, WORK_STRESS)
+
+      await showReport("Report", reportBody);
     }
 
     Script.complete()
@@ -192,4 +200,12 @@ function formatTime(seconds: number): string {
     return `${hours}h ${minutes}m`
   }
   return `${minutes}m`
+}
+
+async function showReport(title: string, body: string) {
+  let alert = new Alert();
+  alert.title = title;
+  alert.message = body;
+  alert.addCancelAction("Close");
+  await alert.presentAlert();
 }

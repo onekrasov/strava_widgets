@@ -17,7 +17,6 @@ const strava = new Strava(
 )
 
 describe("Strava API Integration", () => {
-  // Set timeout for this test to 30 seconds
   test('loadActivities returns an array of activities', async () => {
     const activities = await strava.loadActivities()
 

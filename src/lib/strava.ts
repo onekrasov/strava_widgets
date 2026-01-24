@@ -6,8 +6,9 @@ import type {
   SummaryActivity
 } from '../types/strava-api'
 
+import { fetchAsync } from './http'
+
 declare const FileManager: any
-declare const Request: any
 declare const Timer: any
 
 export class Strava {
@@ -51,7 +52,7 @@ export class Strava {
     try {
       const url = `${this.TOKEN_API}?client_id=${this.clientId}&client_secret=${this.clientSecret}&refresh_token=${this.refreshToken}&grant_type=refresh_token`
       console.log("Fetching Strava token...")
-      const data: StravaTokenResponse = await this.fetchAsync(url, 'POST') as StravaTokenResponse
+      const data: StravaTokenResponse = await fetchAsync(url, 'POST', this.isScriptable) as StravaTokenResponse
 
       console.log("Token obtained successfully")
       return data.access_token
@@ -67,7 +68,7 @@ export class Strava {
       const token = await this.getToken()
       const url = `${this.STRAVA_API_BASE_URL}/athlete?access_token=${token}`
 
-      const athleteInfo = await this.fetchAsync(url, 'GET') as AthleteInfo
+      const athleteInfo = await fetchAsync(url, 'GET', this.isScriptable) as AthleteInfo
 
       return athleteInfo
     } catch (e) {
@@ -81,7 +82,7 @@ export class Strava {
       const token = await this.getToken()
       const url = `${this.STRAVA_API_BASE_URL}/athlete/zones?access_token=${token}`
 
-      const zones = await this.fetchAsync(url, 'GET') as AthleteZones
+      const zones = await fetchAsync(url, 'GET', this.isScriptable) as AthleteZones
 
       return zones
     } catch (e) {
@@ -96,7 +97,7 @@ export class Strava {
       const token = await this.getToken()
       const url = `${this.STRAVA_API_BASE_URL}/athlete/activities?access_token=${token}&after=${twentyEightDaysAgo}&per_page=200`
       console.log("Fetching activities...")
-      const activities = await this.fetchAsync(url, 'GET') as SummaryActivity[]
+      const activities = await fetchAsync(url, 'GET', this.isScriptable) as SummaryActivity[]
 
       console.log(`Loaded ${activities.length} activities`)
       // Filter out unwanted activity types
@@ -139,46 +140,12 @@ export class Strava {
       const token = await this.getToken()
       const url = `${this.STRAVA_API_BASE_URL}/activities/${activityId}/streams?access_token=${token}&keys=${keys.join(',')}&key_by_type=true`
 
-      const streams = await this.fetchAsync(url, 'GET')
+      const streams = await fetchAsync(url, 'GET', this.isScriptable) as ActivityStreamResponse
 
       return streams as ActivityStreamResponse
     } catch (e) {
       console.error(`Error loading Strava activity streams for activity ${activityId}:`, e)
       throw e
-    }
-  }
-
-  async fetchAsync(url: string, method: string): Promise<any> {
-    if (this.isScriptable) {
-      // Use Scriptable's Request API
-      try {
-        const req = new Request(url)
-        req.method = method
-        req.headers = {
-          'Content-Type': 'application/json'
-        }
-        req.timeoutInterval = 30
-
-        const data = await req.loadJSON()
-
-        // Check if response contains an error
-        if (data && data.errors) {
-          throw new Error(`Strava API error: ${JSON.stringify(data.errors)}`)
-        }
-
-        return data
-      } catch (e) {
-        console.error(`Scriptable Request failed for ${url}:`, e)
-        throw e
-      }
-    } else {
-      // Use standard fetch for Node.js/Bun
-      const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' } })
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status} for URL: ${url}`)
-      }
-      const data = await response.json()
-      return data
     }
   }
 
