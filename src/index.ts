@@ -150,42 +150,46 @@ async function createWidget(stats: PerformanceStats): Promise<any> {
   return list
 }
 
-async function main() {
+async function main(...args: any) {
   try {
     const strava = new Strava(CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, true)
-    const activities = await strava.loadActivities()
-    const zones = await strava.getAthleteZones()
-    const athleteInfo = await strava.getAtheleteInfo()
-    const { ftp, weight } = athleteInfo
+    
+    // 1. Fetch data concurrently to avoid Widget timeouts
+    const [activities, zones, athleteInfo] = await Promise.all([
+      strava.loadActivities(),
+      strava.getAthleteZones(),
+      strava.getAtheleteInfo()
+    ]);
 
-    if (!ftp || !weight) {
-      throw new Error("FTP or weight not set in athlete profile.")
-    }
+    const { ftp, weight } = athleteInfo
+    if (!ftp || !weight) throw new Error("FTP/Weight missing")
 
     const stats = calculateStats(activities, ftp, weight, zones)
-    
-    const widget = await createWidget(stats)
 
     if (config.runsInWidget) {
+      const widget = await createWidget(stats)
       Script.setWidget(widget)
     } else {
-      await showReport(athleteInfo, zones, stats, activities);
+      // 2. Check if we are handling the 'showSummary' action from the widget tap
+      const action = args.queryParameters.action
+      if (action === "showSummary" || !config.runsInApp) {
+         await showReport(athleteInfo, zones, stats, activities);
+      } else {
+         // If just running in app, maybe show a preview
+         const widget = await createWidget(stats)
+         await widget.presentMedium()
+      }
     }
-
-    Script.complete()
-  } catch (error) {
-    console.error("Error in main:", error)
-    const errorWidget = new ListWidget()
-    const errorText = errorWidget.addText("Error loading Strava data")
-    errorText.textColor = new Color("#FF0000")
-
+  } catch (error: any) {
+    console.error(error)
+    // Create simple error widget so the Home Screen isn't blank
     if (config.runsInWidget) {
-      Script.setWidget(errorWidget)
-    } else {
-      await errorWidget.presentMedium()
+      let w = new ListWidget()
+      w.addText("Error: " + error.message)
+      Script.setWidget(w)
     }
-
-    Script.complete()
+  } finally {
+    Script.complete() // 3. Always complete the script
   }
 }
 
@@ -202,12 +206,33 @@ function formatTime(seconds: number): string {
 }
 
 async function showReport(athleteInfo: AthleteInfo, zones: AthleteZones, stats: PerformanceStats, activities: SummaryActivity[]) {
-  const gemini = new GeminiClient(GEMINI_API_KEY, athleteInfo, zones, stats, activities, true)
-  const body = await gemini.generateReport(GOAL, WORK_STRESS)
+  // 1. Check for API Key first
+  if (!GEMINI_API_KEY) {
+    let alert = new Alert();
+    alert.title = "Setup Required";
+    alert.message = "Please add your GEMINI_API_KEY to the Keychain.";
+    alert.addCancelAction("OK");
+    return await alert.presentAlert();
+  }
 
-  let alert = new Alert();
-  alert.title = "Training Report";
-  alert.message = body;
-  alert.addCancelAction("Close");
-  await alert.presentAlert();
+  try {
+    const gemini = new GeminiClient(GEMINI_API_KEY, athleteInfo, zones, stats, activities, true);
+    
+    // Provide some feedback while the AI thinks
+    console.log("Fetching Gemini report...");
+    
+    const body = await gemini.generateReport(GOAL, WORK_STRESS);
+
+    let alert = new Alert();
+    alert.title = "AI Coaching Recommendation";
+    alert.message = body;
+    alert.addCancelAction("Close");
+    await alert.presentAlert();
+  } catch (e: any) {
+    let errorAlert = new Alert();
+    errorAlert.title = "Gemini Error";
+    errorAlert.message = e.message || "Failed to generate report.";
+    errorAlert.addCancelAction("OK");
+    await errorAlert.presentAlert();
+  }
 }

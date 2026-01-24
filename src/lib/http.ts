@@ -1,6 +1,6 @@
 declare const Request: any
 
-export async function fetchAsync(url: string, method: string, isScriptable: boolean = false, body?: any): Promise<any> {
+export async function fetchAsync(url: string, method: 'GET' | 'POST', isScriptable: boolean = false, body?: any): Promise<any> {
   if (isScriptable) {
     // Use Scriptable's Request API
     try {
@@ -9,7 +9,7 @@ export async function fetchAsync(url: string, method: string, isScriptable: bool
       req.headers = {
         'Content-Type': 'application/json'
       }
-      req.timeoutInterval = 30
+      req.timeoutInterval = 60 // 60 seconds
 
       if (body) {
         req.body = JSON.stringify(body)
@@ -19,7 +19,7 @@ export async function fetchAsync(url: string, method: string, isScriptable: bool
 
       // Check if response contains an error
       if (data && data.errors) {
-        throw new Error(`Strava API error: ${JSON.stringify(data.errors)}`)
+        throw new Error(`API error: ${JSON.stringify(data.errors)}`)
       }
 
       return data
