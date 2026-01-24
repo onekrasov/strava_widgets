@@ -1,15 +1,19 @@
-import { PerformanceStats, SummaryActivity } from "types";
+import { AthleteInfo, AthleteZones, PerformanceStats, SummaryActivity } from "types";
 import { fetchAsync } from "./http";
 
 export class GeminiClient {
   private stats: PerformanceStats;
+  private athleteInfo: AthleteInfo;
+  private zones: AthleteZones;
   private workoutsContext: string[];
   private apiKey: string;
   private GEMINI_API_BASE_URL: string = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
   private GEMINI_API_URL: string;
   private isScriptable: boolean = false;
 
-  constructor(apiKey: string, stats: PerformanceStats, workouts: SummaryActivity[], isScriptable: boolean = false) {
+  constructor(apiKey: string, athleteInfo: AthleteInfo, zones: AthleteZones, stats: PerformanceStats, workouts: SummaryActivity[], isScriptable: boolean = false) {
+    this.athleteInfo = athleteInfo
+    this.zones = zones
     this.stats = stats
     // remove velocity_smooth, watts, heartrate, time, distance_stream
     // simplifu workouts for prompt size limits
@@ -42,6 +46,8 @@ export class GeminiClient {
     const workouts = this.workoutsContext.slice(0, 10).join(' ')
 
     const prompt = `I am training ${goal}. 
+      My profile: FTP: ${this.athleteInfo.ftp}W, Weight: ${this.athleteInfo.weight}kg, ${this.athleteInfo}.
+      Training Zones: ${JSON.stringify(this.zones)}.
       Current Week Stats: TSS: ${totalTSS}, ACWR: ${acwr}, Low Intensity: ${lowIntensityPercent}%, Medium Intensity: ${mediumIntensityPercent}%, High Intensity: ${highIntensityPercent}%, Avg EF: ${avgEF}. 
       My recent 10 workouts: ${workouts}.
       I have 4x1h dog walks and 1 gym session weekly. 

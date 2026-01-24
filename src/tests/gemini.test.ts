@@ -24,12 +24,14 @@ describe("Gemini API Integration", () => {
     const athleteInfo = await strava.getAtheleteInfo()
     const zones = await strava.getAthleteZones()
     const stats = calculateStats(activities, athleteInfo?.ftp || 0, athleteInfo?.weight || 0, zones)
-    geminiClient = new GeminiClient(GEMINI_API_KEY, stats, activities)
-  })
+    geminiClient = new GeminiClient(GEMINI_API_KEY, athleteInfo, zones, stats, activities)
+  }, 60000)
   // Set timeout for this test to 60 seconds
   test('generateReport', async () => {
     const report = await geminiClient.generateReport("IM 70.3 Alghero in 5h 30min", 70)
     expect(typeof report).toBe("string")
     expect(report.length).toBeGreaterThan(0)
+
+    console.log("Generated Report:\n", report)
   }, 60000)
 })

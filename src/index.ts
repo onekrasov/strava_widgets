@@ -166,8 +166,7 @@ async function main() {
     if (config.runsInWidget) {
       Script.setWidget(widget)
     } else {
-      // --- TAP ACTION (App View) ---
-      const gemini = new GeminiClient(GEMINI_API_KEY, stats, activities, true)
+      const gemini = new GeminiClient(GEMINI_API_KEY, athleteInfo, zones, stats, activities, true)
       const reportBody = await gemini.generateReport(GOAL, WORK_STRESS)
 
       await showReport("Report", reportBody);
