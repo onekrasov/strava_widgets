@@ -2,9 +2,8 @@
 import { describe, expect, test, beforeAll } from "bun:test"
 import { GeminiClient } from "../lib/gemini"
 import { calculateStats } from "../lib/math"
-import fs from "fs"
-import { config as dotenvConfig } from "dotenv"
 import { Strava } from "../lib/strava"
+import { config as dotenvConfig } from "dotenv"
 dotenvConfig()
 const CLIENT_ID = process.env.CLIENT_ID || ""
 const CLIENT_SECRET = process.env.CLIENT_SECRET || ""
@@ -30,7 +29,6 @@ describe("Gemini API Integration", () => {
   // Set timeout for this test to 60 seconds
   test('generateReport', async () => {
     const report = await geminiClient.generateReport("IM 70.3 Alghero in 5h 30min", 70)
-    fs.writeFileSync(`./cache/gemini_report-${new Date().toISOString()}.txt`, report)
     expect(typeof report).toBe("string")
     expect(report.length).toBeGreaterThan(0)
   }, 60000)

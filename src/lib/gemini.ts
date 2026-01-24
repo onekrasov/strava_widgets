@@ -1,6 +1,5 @@
 import { PerformanceStats, SummaryActivity } from "types";
 import { fetchAsync } from "./http";
-import * as fs from 'fs';
 
 export class GeminiClient {
   private stats: PerformanceStats;
