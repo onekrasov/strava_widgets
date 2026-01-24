@@ -1,0 +1,51 @@
+name: Weekly Training Update
+on:
+  schedule:
+    - cron: '0 0 * * 0' # Sunday 00:00 UTC
+  workflow_dispatch:   # Allows manual trigger for testing
+jobs:
+  training_update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest 
+
+      - name: Cache Bun Internals
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb', '**/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      # Handles your JSON activity streams
+      - name: Cache Unit Test Data
+        uses: actions/cache@v4
+        with:
+          path: ./cache
+          # Unique key ensures we save a NEW snapshot every time the job succeeds
+          key: ${{ runner.os }}-activity-streams-${{ github.run_id }}
+          # Restore-keys grabs the most recent snapshot from the previous run
+          restore-keys: |
+            ${{ runner.os }}-activity-streams-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile --backend=copy
+        env:
+          BUN_RUNTIME_TRANSPORTS: "1"
+
+      - name: Run Training Update Script
+        env:
+          CLIENT_ID: ${{ secrets.CLIENT_ID }}
+          CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+          REFRESH_TOKEN: ${{ secrets.REFRESH_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: bun ./src/telegram-bot.ts

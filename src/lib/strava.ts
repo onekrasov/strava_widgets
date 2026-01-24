@@ -63,7 +63,7 @@ export class Strava {
     }
   }
 
-  async getAtheleteInfo(): Promise<AthleteInfo> {
+  async getAthleteInfo(): Promise<AthleteInfo> {
     try {
       const token = await this.getToken()
       const url = `${this.STRAVA_API_BASE_URL}/athlete?access_token=${token}`

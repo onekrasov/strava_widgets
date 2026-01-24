@@ -31,7 +31,7 @@ describe("Strava API Integration", () => {
 
   test('calculateStats computes statistics correctly', async () => {
     const activities = await strava.loadActivities()
-    const athleteInfo = await strava.getAtheleteInfo()
+    const athleteInfo = await strava.getAthleteInfo()
     const zones = await strava.getAthleteZones()
     const stats = calculateStats(activities, athleteInfo?.ftp || 0, athleteInfo?.weight || 0, zones)
     fs.writeFileSync(`./cache/stats-${new Date().toISOString()}.json`, JSON.stringify(stats, null, 2))
@@ -45,8 +45,8 @@ describe("Strava API Integration", () => {
     expect(stats).toHaveProperty('avgEF')
   }, 60000)
 
-  test('getAtheleteInfo returns athlete information', async () => {
-    const athleteInfo = await strava.getAtheleteInfo()
+  test('getAthleteInfo returns athlete information', async () => {
+    const athleteInfo = await strava.getAthleteInfo()
     expect(athleteInfo).toHaveProperty('id')
     expect(athleteInfo).toHaveProperty('ftp')
     expect(athleteInfo).toHaveProperty('weight')

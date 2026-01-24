@@ -46,14 +46,32 @@ export class GeminiClient {
     const { totalTSS, acwr, lowIntensityPercent, highIntensityPercent, mediumIntensityPercent, avgEF} = this.stats;
     const workouts = this.workoutsContext.slice(0, 10).join(' ')
 
-    const prompt = `I am training ${goal}. 
-      My profile: FTP: ${this.athleteInfo.ftp}W, Weight: ${this.athleteInfo.weight}kg, ${this.athleteInfo}.
-      Training Zones: ${JSON.stringify(this.zones)}.
-      Current Week Stats: TSS: ${totalTSS}, ACWR: ${acwr}, Low Intensity: ${lowIntensityPercent}%, Medium Intensity: ${mediumIntensityPercent}%, High Intensity: ${highIntensityPercent}%, Avg EF: ${avgEF}. 
-      My recent 10 workouts: ${workouts}.
-      I have 4x1h dog walks and 1 gym session weekly. 
-      My work stress level is at ${workStress} out of 100.
-      Suggest specific workouts for the next 3 days to keep my ACWR in the 0.8-1.3 range.`
+    const prompt = `Act as a professional endurance coach. 
+    
+      Create a 7-day training plan based on the following profile:
+
+      ### Athlete Profile & Goal
+      - **Goal:** ${goal}
+      - **Metrics:** FTP: ${this.athleteInfo.ftp}W | Weight: ${this.athleteInfo.weight}kg
+      - **Current Load:** TSS: ${totalTSS} | ACWR: ${acwr} | Avg EF: ${avgEF}
+      - **Intensity Mix:** Low: ${lowIntensityPercent}% | Med: ${mediumIntensityPercent}% | High: ${highIntensityPercent}%
+
+      ### Life Constraints
+      - **Work Stress:** ${workStress}/100 (Adjust intensity/recovery if this is high).
+      - **Maintenance:** 4x1h dog walks and 1 gym session (Incorporate these into the schedule).
+
+      ### Guidelines
+      1. **Target ACWR:** Maintain between 0.8 and 1.3.
+      2. **Distribution:** High-volume/Long rides and runs must be on Saturday/Sunday.
+      3. **Context:** Use the recent 10 workouts to ensure progression: ${workouts}.
+      4. **Zones:** Reference these zones for all prescriptions: ${JSON.stringify(this.zones)}.
+
+      ### Output Requirement
+      Do not use a table. Provide the response as a clean, structured list using the following format:
+      - **[Day Name]**: [Emoji] [Workout Name] | [Duration] | [Target Intensity] | [Predicted TSS]
+      - *Coach's Note*: [A brief 1-sentence tip based on workStress or ACWR]
+
+      Use these emojis: 🚴‍♂️ (Bike), 🏃‍♂️ (Run), 🧘‍♂️ (Recovery/Walk), 🏋️‍♂️ (Gym).`
 
     const response = await fetchAsync(this.GEMINI_API_URL, 'POST', this.isScriptable, {
       contents: [{ parts: [{ text: prompt }] }]
