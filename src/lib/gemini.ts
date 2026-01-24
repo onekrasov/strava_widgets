@@ -7,7 +7,8 @@ export class GeminiClient {
   private zones: AthleteZones;
   private workoutsContext: string[];
   private apiKey: string;
-  private GEMINI_API_BASE_URL: string = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+  private model: string = "gemini-2.5-pro";
+  private GEMINI_API_BASE_URL: string = `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent`;
   private GEMINI_API_URL: string;
   private isScriptable: boolean = false;
 
