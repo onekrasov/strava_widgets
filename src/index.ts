@@ -152,14 +152,13 @@ async function createWidget(stats: PerformanceStats): Promise<any> {
 
 async function main(...args: any) {
   try {
+    const action = args.queryParameters ? args.queryParameters.action : null;
     const strava = new Strava(CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, true)
     
     // 1. Fetch data concurrently to avoid Widget timeouts
-    const [activities, zones, athleteInfo] = await Promise.all([
-      strava.loadActivities(),
-      strava.getAthleteZones(),
-      strava.getAtheleteInfo()
-    ]);
+    const activities = await strava.loadActivities();
+    const zones = await strava.getAthleteZones()
+    const athleteInfo = await strava.getAtheleteInfo();
 
     const { ftp, weight } = athleteInfo
     if (!ftp || !weight) throw new Error("FTP/Weight missing")
@@ -171,7 +170,6 @@ async function main(...args: any) {
       Script.setWidget(widget)
     } else {
       // 2. Check if we are handling the 'showSummary' action from the widget tap
-      const action = args.queryParameters.action
       if (action === "showSummary" || !config.runsInApp) {
          await showReport(athleteInfo, zones, stats, activities);
       } else {
