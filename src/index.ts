@@ -2,7 +2,10 @@ import { GeminiClient } from "lib/gemini"
 import { calculateStats } from "./lib/math"
 import { Strava } from "./lib/strava"
 import type {
+  AthleteInfo,
+  AthleteZones,
   PerformanceStats,
+  SummaryActivity,
 } from "./types"
 
 // Scriptable globals - no need to import, they're available globally in Scriptable
@@ -166,10 +169,7 @@ async function main() {
     if (config.runsInWidget) {
       Script.setWidget(widget)
     } else {
-      const gemini = new GeminiClient(GEMINI_API_KEY, athleteInfo, zones, stats, activities, true)
-      const reportBody = await gemini.generateReport(GOAL, WORK_STRESS)
-
-      await showReport("Report", reportBody);
+      await showReport(athleteInfo, zones, stats, activities);
     }
 
     Script.complete()
@@ -201,9 +201,12 @@ function formatTime(seconds: number): string {
   return `${minutes}m`
 }
 
-async function showReport(title: string, body: string) {
+async function showReport(athleteInfo: AthleteInfo, zones: AthleteZones, stats: PerformanceStats, activities: SummaryActivity[]) {
+  const gemini = new GeminiClient(GEMINI_API_KEY, athleteInfo, zones, stats, activities, true)
+  const body = await gemini.generateReport(GOAL, WORK_STRESS)
+
   let alert = new Alert();
-  alert.title = title;
+  alert.title = "Training Report";
   alert.message = body;
   alert.addCancelAction("Close");
   await alert.presentAlert();
