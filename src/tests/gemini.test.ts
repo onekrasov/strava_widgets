@@ -8,7 +8,7 @@ dotenvConfig({ override: false })
 const CLIENT_ID = process.env.CLIENT_ID || ""
 const CLIENT_SECRET = process.env.CLIENT_SECRET || ""
 const REFRESH_TOKEN = process.env.REFRESH_TOKEN || ""
-const GEMINI_API_KEY = (process.env.GEMINI_API_KEY ?? "").trim()
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ""
 
 const strava = new Strava(
   CLIENT_ID,
@@ -20,9 +20,6 @@ let geminiClient: GeminiClient
 
 describe("Gemini API Integration", () => {
   beforeAll(async () => {
-    if (!GEMINI_API_KEY) {
-      throw new Error("Missing GEMINI_API_KEY. Ensure CI/CD variable is set and not overridden by .gitlab-ci.yml or .env")
-    }
     const activities = await strava.loadActivities()
     const athleteInfo = await strava.getAtheleteInfo()
     const zones = await strava.getAthleteZones()
