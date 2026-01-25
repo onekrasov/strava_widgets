@@ -65,6 +65,7 @@ export class GeminiClient {
       2. **Distribution:** High-volume/Long rides and runs must be on Saturday/Sunday.
       3. **Context:** Use the recent 10 workouts to ensure progression: ${workouts}.
       4. **Zones:** Reference these zones for all prescriptions: ${JSON.stringify(this.zones)}.
+      5. **Schedule Constrains** gym session is possible on Monday. Swimming sessions on Tuesday evening, Wednesday evening, Saturday morning or Sunday morning
 
       ### Output Requirement
       Do not use a table. Provide the response as a clean, structured list using the following format:
