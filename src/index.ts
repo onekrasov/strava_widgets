@@ -163,12 +163,8 @@ async function main() {
 
     const stats = calculateStats(activities, ftp, weight, zones)
 
-    if (config.runsInWidget) {
-      const widget = await createWidget(stats)
-      Script.setWidget(widget)
-    } else {
-      console.log("Not running in widget mode")
-    }
+    const widget = await createWidget(stats)
+    Script.setWidget(widget)
   } catch (error: any) {
     console.error(error)
     // Create simple error widget so the Home Screen isn't blank
