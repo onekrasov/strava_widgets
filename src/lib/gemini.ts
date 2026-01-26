@@ -56,9 +56,13 @@ export class GeminiClient {
   async generateReport(): Promise<string> {
     const prompt = await this.buildContext()
 
+    console.log("Making request to Gemini API...")
+
     const response = await fetchAsync(this.GEMINI_API_URL, 'POST', this.isScriptable, {
       contents: [{ parts: [{ text: prompt }] }]
     })
+
+    console.log("Received response from Gemini API")
 
     return response.candidates[0].content.parts[0].text.trim()
   }
@@ -67,7 +71,7 @@ export class GeminiClient {
     const { totalTSS, acwr, lowIntensityPercent, highIntensityPercent, mediumIntensityPercent, avgEF} = this.stravaInput.stats;
     const workouts = this.workoutsContext.join('\n')
 
-    return `Act as a professional coach. 
+    const context = `Act as a professional coach. 
     
       Create a 7-day training plan based on the following profile:
 
@@ -81,6 +85,10 @@ export class GeminiClient {
       - **Zones:** Reference these zones for all prescriptions: ${JSON.stringify(this.stravaInput.zones)}.
 
       ${this.additionalInstructions}
-     `
+    `
+
+    console.log(`Context built for Gemini API:\n${context}`)
+
+    return context
   }
 }

@@ -1,7 +1,7 @@
 name: Weekly Training Update
 on:
   schedule:
-    - cron: '30 9 * * 1' # Monday 08:30 CET
+    - cron: '0 0 * * 0' # Every Sunday at midnight UTC
   workflow_dispatch:   # Allows manual trigger for testing
 jobs:
   training_update:
