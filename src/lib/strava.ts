@@ -41,7 +41,7 @@ export class Strava {
     }
   }
 
-  private async getToken(): Promise<string> {
+  async getToken(): Promise<string> {
     if (!this.token) {
       this.token = await this.obtainStravaToken()
     }

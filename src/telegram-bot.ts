@@ -8,6 +8,9 @@ const REFRESH_TOKEN = process.env.REFRESH_TOKEN || ""
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || ""
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || ""
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || ""
+const CONTEXT_TRAINING_GOAL = process.env.CONTEXT_TRAINING_GOAL || ""
+const CONTEXT_WORK_STRESS = parseInt(process.env.CONTEXT_WORK_STRESS || "0", 10)
+const CONTEXT_ADDITIONAL_INSTRUCTIONS = process.env.CONTEXT_ADDITIONAL_INSTRUCTIONS || ""
 
 async function main() {
   const stravaClient = new Strava(
@@ -19,13 +22,22 @@ async function main() {
     TELEGRAM_BOT_TOKEN,
     TELEGRAM_CHAT_ID
   )
-  const activities = await stravaClient.loadActivities()
-  const athleteInfo = await stravaClient.getAthleteInfo()
-  const zones = await stravaClient.getAthleteZones()
-  const stats = calculateStats(activities, athleteInfo?.ftp || 0, athleteInfo?.weight || 0, zones)
+  await stravaClient.getToken()
+
+  const [activities, athleteInfo, zones] = await Promise.all([
+    stravaClient.loadActivities(),
+    stravaClient.getAthleteInfo(),
+    stravaClient.getAthleteZones()
+  ])
+  const stravaInput = {
+    athleteInfo,
+    zones,
+    stats: calculateStats(activities, athleteInfo?.ftp || 0, athleteInfo?.weight || 0, zones),
+    workouts: activities
+  }
   
-  const geminiClient = new GeminiClient(GEMINI_API_KEY, athleteInfo, zones, stats, activities)
-  const report = await geminiClient.generateReport("IM 70.3 Alghero in 5h 30min", 70)
+  const geminiClient = new GeminiClient(GEMINI_API_KEY, CONTEXT_TRAINING_GOAL, CONTEXT_WORK_STRESS, CONTEXT_ADDITIONAL_INSTRUCTIONS, stravaInput, false)
+  const report = await geminiClient.generateReport()
   
   await telegramClient.sendMessage(report)
 }
