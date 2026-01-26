@@ -168,7 +168,7 @@ async function main() {
     if (config.runsInWidget) {
       Script.setWidget(widget)
     } else {
-      await widget.presentMedium()
+      await widget.presentSmall()
     }
 
     Script.complete()
