@@ -165,6 +165,10 @@ async function main() {
 
     const widget = await createWidget(stats)
     Script.setWidget(widget)
+
+    if (!config.runsInWidget) {
+      await widget.presentSmall()
+    }
   } catch (error: any) {
     console.error(error)
     // Create simple error widget so the Home Screen isn't blank
