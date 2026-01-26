@@ -155,9 +155,16 @@ async function main() {
     const strava = new Strava(CLIENT_ID, CLIENT_SECRET, REFRESH_TOKEN, true)
     
     // 1. Fetch data concurrently to avoid Widget timeouts
-    const activities = await strava.loadActivities();
-    const zones = await strava.getAthleteZones()
-    const athleteInfo = await strava.getAthleteInfo();
+    await strava.getToken()
+
+    const [activities, athleteInfo, zones] = await Promise.all([
+      strava.loadActivities(),
+      strava.getAthleteInfo(),
+      strava.getAthleteZones()
+    ])
+
+    // 2. Calculate stats
+    if (!athleteInfo) throw new Error("Athlete info missing")
 
     const { ftp, weight } = athleteInfo
     if (!ftp || !weight) throw new Error("FTP/Weight missing")
