@@ -1,10 +1,7 @@
 import { calculateStats } from "./lib/math"
 import { Strava } from "./lib/strava"
 import type {
-  AthleteInfo,
-  AthleteZones,
   PerformanceStats,
-  SummaryActivity,
 } from "./types"
 
 // Scriptable globals - no need to import, they're available globally in Scriptable
@@ -16,15 +13,10 @@ declare const Size: any
 declare const Script: any
 declare const config: any
 declare const Keychain: any
-declare const Alert: any
-declare const args: any
 
 const CLIENT_ID = Keychain.get("STRAVA_CLIENT_ID")
 const CLIENT_SECRET = Keychain.get("STRAVA_CLIENT_SECRET")
 const REFRESH_TOKEN = Keychain.get("STRAVA_REFRESH_TOKEN")
-const GEMINI_API_KEY = Keychain.get("GEMINI_API_KEY")
-const GOAL = Keychain.get("TRAINING_GOAL")
-const WORK_STRESS = parseInt(Keychain.get("WORK_STRESS_LEVEL") || "50", 10)
 
 async function createWidget(stats: PerformanceStats): Promise<any> {
   const list = new ListWidget()
