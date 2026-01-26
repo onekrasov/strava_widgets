@@ -35,7 +35,7 @@ async function main() {
     stats: calculateStats(activities, athleteInfo?.ftp || 0, athleteInfo?.weight || 0, zones),
     workouts: activities
   }
-  
+
   const geminiClient = new GeminiClient(GEMINI_API_KEY, CONTEXT_TRAINING_GOAL, CONTEXT_WORK_STRESS, CONTEXT_ADDITIONAL_INSTRUCTIONS, stravaInput, false)
   const report = await geminiClient.generateReport()
   
