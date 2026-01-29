@@ -42,12 +42,46 @@ export function calculateStats(activities: SummaryActivity[], userFtp: number, u
   let totalEF = 0
   let efCount = 0
 
+  // Weekly TSS tracking (Mon-Sun)
+  const weeklyTSS = [0, 0, 0, 0]; // Last 4 weeks, oldest to newest
+
   const now = Math.floor(Date.now() / 1000)
   const sevenDaysAgo = now - (7 * 24 * 60 * 60)
   const twentyEightDaysAgo = now - (28 * 24 * 60 * 60)
 
+  // Helper function to get week index (0-3) for an activity
+  // Week starts on Monday
+  function getWeekIndex(activityTimestamp: number): number {
+    const activityDate = new Date(activityTimestamp * 1000);
+    const currentDate = new Date(now * 1000);
+    
+    // Get the Monday of the current week
+    const currentMonday = new Date(currentDate);
+    const dayOfWeek = currentDate.getDay();
+    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Sunday is 0, Monday is 1
+    currentMonday.setDate(currentDate.getDate() + diff);
+    currentMonday.setHours(0, 0, 0, 0);
+    
+    // Get the Monday of the activity week
+    const activityMonday = new Date(activityDate);
+    const activityDayOfWeek = activityDate.getDay();
+    const activityDiff = activityDayOfWeek === 0 ? -6 : 1 - activityDayOfWeek;
+    activityMonday.setDate(activityDate.getDate() + activityDiff);
+    activityMonday.setHours(0, 0, 0, 0);
+    
+    // Calculate weeks difference
+    const weeksDiff = Math.floor((currentMonday.getTime() - activityMonday.getTime()) / (7 * 24 * 60 * 60 * 1000));
+    
+    // Return index (0 = current week, 1 = last week, etc.)
+    // We want index 3 to be oldest (4 weeks ago), index 0 to be newest (current week)
+    if (weeksDiff >= 0 && weeksDiff < 4) {
+      return 3 - weeksDiff; // Reverse so oldest is at index 0
+    }
+    return -1; // Outside our 4-week window
+  }
+
   if (!activities || activities.length === 0) {
-    return { totalTSS: 0, totalWorkoutTime: 0, acwr: 0, avgIF: 0, lowIntensityPercent: 0, mediumIntensityPercent: 0, highIntensityPercent: 0, avgEF: 0 }
+    return { totalTSS: 0, totalWorkoutTime: 0, acwr: 0, avgIF: 0, lowIntensityPercent: 0, mediumIntensityPercent: 0, highIntensityPercent: 0, avgEF: 0, totalTss4Weeks: [0, 0, 0, 0] }
   }
 
   activities.forEach((activity) => {
@@ -78,6 +112,12 @@ export function calculateStats(activities: SummaryActivity[], userFtp: number, u
       if (activityTime >= sevenDaysAgo) {
         totalTSS7d += activityTSS
         totalWorkoutTime7d += movingTime
+      }
+      
+      // Track weekly TSS (Mon-Sun)
+      const weekIndex = getWeekIndex(activityTime);
+      if (weekIndex >= 0 && weekIndex < 4) {
+        weeklyTSS[weekIndex] += activityTSS;
       }
     }
 
@@ -144,7 +184,8 @@ export function calculateStats(activities: SummaryActivity[], userFtp: number, u
     lowIntensityPercent: totalIntensityTime > 0 ? Math.round((lowIntensityTime / totalIntensityTime) * 100) : 0,
     mediumIntensityPercent: totalIntensityTime > 0 ? Math.round((mediumIntensityTime / totalIntensityTime) * 100) : 0,
     highIntensityPercent: totalIntensityTime > 0 ? Math.round((highIntensityTime / totalIntensityTime) * 100) : 0,
-    avgEF: efCount > 0 ? parseFloat((totalEF / efCount).toFixed(2)) : 0
+    avgEF: efCount > 0 ? parseFloat((totalEF / efCount).toFixed(2)) : 0,
+    totalTss4Weeks: weeklyTSS.map(tss => Math.round(tss))
   }
 }
 

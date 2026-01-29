@@ -34,4 +34,7 @@ export interface PerformanceStats {
    * Ratio of output (Watts or Speed) to input (Heart Rate).
    */
   avgEF: number;
+
+  /** TSS for each of the last 4 weeks (Monday to Sunday), oldest to newest */
+  totalTss4Weeks: number[];
 }

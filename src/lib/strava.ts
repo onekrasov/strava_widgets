@@ -22,7 +22,6 @@ export class Strava {
   private TOKEN_API: string = `https://www.strava.com/oauth/token`
   private STRAVA_API_BASE_URL: string = "https://www.strava.com/api/v3"
   private EXCLUDED_TYPES = [
-    'Walk',
     'EBikeRide'
   ]
   private CACHE_FOLDER = './cache'

@@ -62,7 +62,7 @@ async function createWidget(stats: PerformanceStats): Promise<any> {
   }
 
   // Main metrics section
-  addRow("TSS", stats.totalTSS.toString(), textColor, 18)
+  addRow("TSS", stats.totalTss4Weeks.join(", "), textColor, 18)
   list.addSpacer(3)
   addRow("Time", formatTime(stats.totalWorkoutTime), textColor, 18)
 
