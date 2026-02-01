@@ -71,7 +71,7 @@ export class GeminiClient {
     const { totalTSS7d, acwr, lowIntensityPercent, highIntensityPercent, mediumIntensityPercent, avgEF} = this.stravaInput.stats;
     const workouts = this.workoutsContext.join('\n')
 
-    const context = `Act as a professional coach. 
+    const context = `Act as an amateur triathlon coach. 
     
       Create a 7-day training plan based on the following profile:
 
