@@ -100,9 +100,9 @@ export class Strava {
 
       console.log(`Loaded ${activities.length} activities`)
       // Filter out unwanted activity types
-      const filteredActivities = activities.filter(activity => !this.EXCLUDED_TYPES.includes(activity.sport_type))
+      // const filteredActivities = activities.filter(activity => !this.EXCLUDED_TYPES.includes(activity.sport_type))
 
-      for (const activity of filteredActivities) {
+      for (const activity of activities) {
         let streams = this.loadCache(`activity_streams_${activity.id}`) as ActivityStreamResponse
         if (!streams) {
           try {
@@ -127,7 +127,7 @@ export class Strava {
         activity.time = streams.time
       }
 
-      return filteredActivities
+      return activities
     } catch (e) {
       console.error("Error loading Strava activities:", e)
       throw e
