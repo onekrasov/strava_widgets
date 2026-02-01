@@ -42,7 +42,7 @@ describe("Strava API Integration", () => {
       zones
     )
     fs.writeFileSync(`./cache/stats-${new Date().toISOString()}.json`, JSON.stringify(stats, null, 2))
-    expect(stats).toHaveProperty('totalTSS')
+    expect(stats).toHaveProperty('totalTSS7d')
     expect(stats).toHaveProperty('totalWorkoutTime')
     expect(stats).toHaveProperty('acwr')
     expect(stats).toHaveProperty('avgIF')
