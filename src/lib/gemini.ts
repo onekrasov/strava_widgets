@@ -68,7 +68,7 @@ export class GeminiClient {
   }
 
   async buildContext(): Promise<string> {
-    const { totalTSS, acwr, lowIntensityPercent, highIntensityPercent, mediumIntensityPercent, avgEF} = this.stravaInput.stats;
+    const { totalTSS7d, acwr, lowIntensityPercent, highIntensityPercent, mediumIntensityPercent, avgEF} = this.stravaInput.stats;
     const workouts = this.workoutsContext.join('\n')
 
     const context = `Act as a professional coach. 
@@ -79,7 +79,7 @@ export class GeminiClient {
       - **Goal:** ${this.goal}
       - **Work Stress:** ${this.workStress}/100. Adjust intensity/recovery if this is high;
       - **Metrics:** FTP: ${this.stravaInput.athleteInfo.ftp}W | Weight: ${this.stravaInput.athleteInfo.weight}kg;
-      - **Current Load:** TSS: ${totalTSS} | ACWR: ${acwr} | Avg EF: ${avgEF};
+      - **Current Load:** TSS: ${totalTSS7d} | ACWR: ${acwr} | Avg EF: ${avgEF};
       - **Current Intensity:** Low: ${lowIntensityPercent}% | Med: ${mediumIntensityPercent}% | High: ${highIntensityPercent}%;
       - **Context:** Use the recent 28 days workouts to ensure progression: ${workouts};
       - **Zones:** Reference these zones for all prescriptions: ${JSON.stringify(this.stravaInput.zones)}.

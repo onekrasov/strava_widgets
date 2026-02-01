@@ -114,8 +114,8 @@ export function calculateStats(
   zones: AthleteZones   
 ): PerformanceStats {
   
-  const ftpZones = zones.power?.zones?.map(z => z.max) || [];
-  const hrZones = zones.heart_rate?.zones || [];
+  const ftpZones = zones?.power?.zones?.map(z => z.max) || [];
+  const hrZones = zones?.heart_rate?.zones || [];
 
   const BIKE_LOW = ftpZones[1] || userFtp * 0.75;
   const BIKE_MID = ftpZones[3] || userFtp * 0.95;
