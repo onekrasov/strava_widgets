@@ -33,7 +33,14 @@ describe("Strava API Integration", () => {
     const activities = await strava.loadActivities()
     const athleteInfo = await strava.getAthleteInfo()
     const zones = await strava.getAthleteZones()
-    const stats = calculateStats(activities, athleteInfo?.ftp || 0, athleteInfo?.weight || 0, zones)
+    const stats = calculateStats(
+      activities, 
+      athleteInfo?.ftp || 0, 
+      athleteInfo?.weight || 0, 
+      285,
+      115,
+      zones
+    )
     fs.writeFileSync(`./cache/stats-${new Date().toISOString()}.json`, JSON.stringify(stats, null, 2))
     expect(stats).toHaveProperty('totalTSS')
     expect(stats).toHaveProperty('totalWorkoutTime')

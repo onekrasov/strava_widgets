@@ -62,7 +62,7 @@ async function createWidget(stats: PerformanceStats): Promise<any> {
   }
 
   // Main metrics section
-  addRow("TSS", stats.totalTss4Weeks.join(", "), textColor, 18)
+  addRow("TSS", stats.totalTss4Weeks.join(", "), textColor, 10)
   list.addSpacer(3)
   addRow("Time", formatTime(stats.totalWorkoutTime), textColor, 18)
 
@@ -161,7 +161,14 @@ async function main() {
     const { ftp, weight } = athleteInfo
     if (!ftp || !weight) throw new Error("FTP/Weight missing")
 
-    const stats = calculateStats(activities, ftp, weight, zones)
+    const stats = calculateStats(
+      activities,
+      ftp, 
+      weight, 
+      285,
+      115,
+      zones
+    )
 
     const widget = await createWidget(stats)
 

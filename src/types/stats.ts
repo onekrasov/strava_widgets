@@ -4,7 +4,7 @@
  */
 export interface PerformanceStats {
   /** Total Training Stress Score accumulated over the last 7 days */
-  totalTSS: number;
+  totalTSS7d: number;
 
   /** Total moving time in seconds for activities in the last 7 days */
   totalWorkoutTime: number;
@@ -34,6 +34,7 @@ export interface PerformanceStats {
    * Ratio of output (Watts or Speed) to input (Heart Rate).
    */
   avgEF: number;
+
 
   /** TSS for each of the last 4 weeks (Monday to Sunday), oldest to newest */
   totalTss4Weeks: number[];

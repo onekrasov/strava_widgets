@@ -4,9 +4,9 @@
 
 Mobile widgets for fast access to performance stats from strava:
 
-1. **Training Stress Score (TSS)** - Last 7 days total
+1. **Training Stress Score (TSS)** - Current week
    - Cycling: `TSS = [(time × NP × IF) / (FTP × 3600)] × 100` where `IF = NP / FTP`
-   - Other activities: Uses Strava's Suffer Score as proxy
+   - Other activities: Uses Strava's Suffer Score
 
 2. **Intensity Factor (IF)** - Average across all cycling activities
    - `IF = Normalized Power / FTP`

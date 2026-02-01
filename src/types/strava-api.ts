@@ -58,7 +58,7 @@ export interface SummaryActivity {
   max_heartrate?: number;
   elev_high?: number;
   elev_low?: number;
-  suffer_score?: number;
+  suffer_score: number;
   velocity_smooth?: ActivityStream;
   watts: ActivityStream;
   heartrate: ActivityStream;
@@ -109,6 +109,12 @@ export interface AthleteZones {
   power?: {
     custom_zones: boolean;
     zones: ZoneBucket[];
+  };
+  running?: {
+    threshold_speed: number; // m/s
+  };
+  swimming?: {
+    css: number; // m/s
   };
 }
 

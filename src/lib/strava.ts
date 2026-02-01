@@ -22,7 +22,7 @@ export class Strava {
   private TOKEN_API: string = `https://www.strava.com/oauth/token`
   private STRAVA_API_BASE_URL: string = "https://www.strava.com/api/v3"
   private EXCLUDED_TYPES = [
-    'EBikeRide'
+    'Walk',
   ]
   private CACHE_FOLDER = './cache'
 
@@ -92,9 +92,9 @@ export class Strava {
 
   async loadActivities(): Promise<SummaryActivity[]> {
     try {
-      const twentyEightDaysAgo = Math.floor(Date.now() / 1000) - (28 * 24 * 60 * 60)
+      const fortyTwoDaysAgo = Math.floor(Date.now() / 1000) - (42 * 24 * 60 * 60)
       const token = await this.getToken()
-      const url = `${this.STRAVA_API_BASE_URL}/athlete/activities?access_token=${token}&after=${twentyEightDaysAgo}&per_page=200`
+      const url = `${this.STRAVA_API_BASE_URL}/athlete/activities?access_token=${token}&after=${fortyTwoDaysAgo}&per_page=200`
       console.log("Fetching activities...")
       const activities = await fetchAsync(url, 'GET', this.isScriptable) as SummaryActivity[]
 
